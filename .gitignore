@@ -1,0 +1,25 @@
+backend/target/
+backend/application-local.yml
+backend/.env
+*.log
+.idea/
+*.iml
+.local/
+
+/target/
+/archive/
+__pycache__/
+*.pyc
+
+# Deployment credentials and private keys
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local reference utilities depend on private development backups
+/docs/reference/历史数据脚本/
+*.pid
+.DS_Store
+Thumbs.db

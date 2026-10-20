@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.learning.mapper.TeachingClassMapper">
+ <sql id="fields">CAST(tc.id AS CHAR) id,CAST(tc.course_id AS CHAR) courseId,tc.name,c.name courseName,tc.semester,tc.location,tc.notes,tc.created_at createdAt,(SELECT COUNT(*) FROM class_member m WHERE m.class_id=tc.id) studentCount</sql>
+ <select id="list" resultType="map">SELECT <include refid="fields"/> FROM teaching_class tc JOIN course c ON c.id=tc.course_id WHERE c.teacher_id=#{teacherId} AND tc.archived=0 <if test="courseId != null">AND c.id=#{courseId}</if> ORDER BY c.sort_order,tc.id</select>
+ <select id="find" resultType="map">SELECT <include refid="fields"/> FROM teaching_class tc JOIN course c ON c.id=tc.course_id WHERE tc.id=#{id} AND c.teacher_id=#{teacherId} AND tc.archived=0</select>
+ <select id="lock" resultType="map">SELECT CAST(tc.id AS CHAR) id,CAST(tc.course_id AS CHAR) courseId FROM teaching_class tc JOIN course c ON c.id=tc.course_id WHERE tc.id=#{id} AND c.teacher_id=#{teacherId} AND tc.archived=0 FOR UPDATE</select>
+ <insert id="insert" useGeneratedKeys="true" keyProperty="id">INSERT INTO teaching_class(course_id,name,semester,location,notes) VALUES(#{courseId},#{name},#{semester},#{location},#{notes})</insert>
+ <update id="update">UPDATE teaching_class SET name=#{name},semester=#{semester},location=#{location},notes=#{notes},updated_at=CURRENT_TIMESTAMP(3) WHERE id=#{id}</update>
+ <update id="archive">UPDATE teaching_class SET archived=1,updated_at=CURRENT_TIMESTAMP(3) WHERE id=#{id}</update>
+ <delete id="clearMembers">DELETE FROM class_member WHERE class_id=#{id}</delete>
+ <sql id="search"><if test="keyword != null and keyword != ''">AND (LOCATE(#{keyword},u.username)>0 OR LOCATE(#{keyword},u.real_name)>0)</if></sql>
+ <select id="students" resultType="map">SELECT CAST(u.id AS CHAR) id,u.username,u.real_name realName,u.enabled,m.joined_at joinedAt FROM class_member m JOIN app_user u ON u.id=m.student_id WHERE m.class_id=#{id} <include refid="search"/> ORDER BY u.username</select>
+ <select id="candidates" resultType="map">SELECT CAST(u.id AS CHAR) id,u.username,u.real_name realName FROM course_enrollment e JOIN app_user u ON u.id=e.student_id WHERE e.course_id=#{courseId} AND u.role='STUDENT' AND u.enabled=1 AND NOT EXISTS(SELECT 1 FROM class_member m WHERE m.course_id=e.course_id AND m.student_id=e.student_id) <include refid="search"/> ORDER BY u.username</select>
+ <select id="memberClass" resultType="long">SELECT class_id FROM class_member WHERE student_id=#{studentId} AND course_id=#{courseId} FOR UPDATE</select>
+ <insert id="add">INSERT INTO class_member(class_id,course_id,student_id) VALUES(#{id},#{courseId},#{studentId})</insert>
+ <delete id="remove">DELETE FROM class_member WHERE class_id=#{id} AND student_id=#{studentId}</delete>
+</mapper>

@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $mysql = (Get-Command $MySqlPath -ErrorAction Stop).Source
-$files = if ($WithHistory) { @('00_full_database.sql', '07_teachers_enrollment.sql', '08_teaching_classes.sql') } else { @('01_schema.sql', '02_demo_data.sql', '03_optional_password_change.sql', '04_expand_question_bank.sql', '06_chapter_bank.sql', '07_teachers_enrollment.sql', '08_teaching_classes.sql') }
+$files = if ($WithHistory) { @('00_full_database.sql', '07_teachers_enrollment.sql', '08_teaching_classes.sql', '09_course_schedule.sql', '10_attendance.sql') } else { @('01_schema.sql', '02_demo_data.sql', '03_optional_password_change.sql', '04_expand_question_bank.sql', '06_chapter_bank.sql', '07_teachers_enrollment.sql', '08_teaching_classes.sql', '09_course_schedule.sql', '10_attendance.sql') }
 foreach ($file in $files) {
     if (-not (Test-Path -LiteralPath (Join-Path $projectRoot "sql/$file"))) { throw "Missing SQL file: $file" }
 }

@@ -69,6 +69,7 @@ if __name__ == '__main__':
         call('/student/courses/1',student,method='DELETE')
         call('/student/courses/1',student,method='DELETE')
         assert course_ids(student)=={'2','3','4','5'}
+        assert {row['courseId'] for row in call('/schedule',student)}=={'2','3','4','5'}
         assert len(call('/student/summary',student))==4
         assert call('/admin/course-students?courseId=1',t1)['total']==19
         assert not next(r for r in call('/student/courses/catalog',student) if r['id']=='1')['enrolled']
@@ -82,16 +83,20 @@ if __name__ == '__main__':
         assert call('/student/practices?courseId=1',student)['total']==0
         for cid in ['2','3','4','5']:call('/student/courses/'+cid,student,method='DELETE')
         assert call('/courses',student)==[]
+        assert call('/schedule',student)==[]
         assert call('/student/summary',student)==[]
         assert call('/student/wrong-questions',student)['total']==0
         with ThreadPoolExecutor(max_workers=3) as pool:
             list(pool.map(lambda _:call('/student/courses/1/join',student,method='POST'),range(3)))
         assert course_ids(student)=={'1'}
+        assert len(call('/schedule',student))==2
+        assert {row['courseId'] for row in call('/schedule',student)}=={'1'}
         assert call('/admin/course-students?courseId=1',t1)['total']==20
     finally:
         for cid in original:call('/student/courses/'+cid+'/join',student,method='POST')
         for teacher,class_id in original_classes:call('/admin/classes/'+class_id+'/students',teacher,method='POST',body={'studentIds':[sid]})
     assert course_ids(student)==original
+    assert {row['courseId'] for row in call('/schedule',student)}==original
     assert call('/student/practices',student)['total']==before
     with ThreadPoolExecutor(max_workers=6) as pool:
         results=list(pool.map(lambda pair:course_ids(pair[0])==pair[1],[(t1,{'1','2'}),(t2,{'3','4','5'}),(student,original)]*4))

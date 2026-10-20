@@ -2,7 +2,7 @@
 
 基于 Spring Boot、MyBatis 和 MySQL 的课堂教学与学习分析系统，采用原生 HTML/CSS/JavaScript 和 Nginx 展示蓝白色教学工作台。
 
-当前已实现课程练习、自动评分、错题与薄弱项分析、教师课程分工、学生自主选退课和教学班管理。课堂签到尚未实现。
+当前已实现课程练习、自动评分、错题与薄弱项分析、教师课程分工、学生自主选退课和教学班管理。新增教师与学生个人周课表，每门课每周两次，周末不排课；课表按教师负责课程和学生选课实时过滤。支持教师在课程内发布普通签到、四位数字口令签到，学生接收提醒并完成签到，教师查看签到名单和人数。
 
 ## 功能
 
@@ -79,6 +79,26 @@ mvn -B -f backend/pom.xml package
 
 运行日志和 PID 位于系统 TEMP 下的 `classroom-learning-nginx`。Java 构建产物为 `backend/target/classroom-learning-1.0.0.jar`。修改后端后先停止本项目，再构建并重新启动，避免 Windows 的 JAR 文件占用。
 
+### 每周课表
+
+教师与学生均可从侧栏“我的课表”进入。五门课程共 10 次课，分散在不同工作日的四个时段（08:20–10:00、10:20–12:00、14:00–15:40、16:00–17:40），所有课程时间不重叠。支持上周/下周、本周、日期选择及课程详情弹窗；周末留空。当前是每周重复课表，未配置学期起止、节假日或调课。
+
+已有数据库增加课表表和默认排课（可重复执行，不覆盖已有排课）：
+
+```powershell
+.\scripts\upgrade-schedule.ps1
+```
+
+新环境初始化脚本已包含 `09_course_schedule.sql`。数据库唯一约束禁止全局时段重叠，CHECK 约束禁止周末排课。
+
+### 课程签到
+
+教师：课程概览 → 课程详情 → 课程签到，可选择普通/口令签到、有效时长并发布。四位数字由服务器生成并仅向教师返回；支持前导零。学生：从侧栏“课程签到”进入，首页显示待签到提醒，普通签到点击即可，口令签到输入教师展示的数字。通知及人数每 10 秒检查更新。
+
+发布时保存已选课且启用的学生名单；后加入课程的学生不追加入已发布签到。学生退课后不再看到或提交该课程签到。每人每次只记录一次签到时间，截止或教师提前结束后无法继续签到。教师可查看应签/已签人数、学生名单及时间。
+
+已有环境执行 `.\scripts\upgrade-attendance.ps1`；新环境初始化已包含 `10_attendance.sql`。`python scripts/verify_attendance.py` 验证普通/口令签到、重复提交、到期、结束、名单与权限，并恢复测试学生选课与班级；设置 `MYSQL_PWD` 时会清理本次自动验证产生的签到，否则保留为已结束记录。
+
 ### 演示账号
 
 | 账号 | 密码 | 负责课程 |
@@ -105,6 +125,7 @@ mvn -B -f backend/pom.xml package
 ```powershell
 mvn -B -f backend/pom.xml test
 python scripts/verify_frontend.py
+python scripts/verify_schedule.py
 python scripts/verify_migration.py
 python scripts/verify_enrollment.py
 python scripts/verify_classes.py

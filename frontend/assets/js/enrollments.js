@@ -1,5 +1,5 @@
-import {api,query} from './api.js?v=20261020-classes-4';
-import {$,esc,toast,busy,heading,empty,number} from './common.js?v=20261020-classes-4';
+import {api,query} from './api.js?v=20261020-attendance-1';
+import {$,esc,toast,busy,heading,empty,number} from './common.js?v=20261020-attendance-1';
 
 export async function myCourses(){
  $('#main').innerHTML=heading('MY COURSES','我的课程','在这里管理你加入的课程，查看任课教师并进入课程学习。','<button id="open-catalog">＋ 加入课程</button>')+

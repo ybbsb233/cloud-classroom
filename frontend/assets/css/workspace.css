@@ -28,3 +28,39 @@ th{background:#f7f9fd;color:#8a97ad;font-size:12px;padding:15px 17px}td{padding:
 .enrollment-card .course-actions>a,.enrollment-card .course-actions>button,.chapter-set-footer a,.chapter-set-footer button{position:relative;z-index:2}
 
 .teaching-class-card{position:relative;display:flex;flex-direction:column;margin-bottom:0}.teaching-class-card h2{margin-top:20px}.teaching-class-card .course-actions{margin-top:auto}.teaching-class-card .course-actions>*{position:relative;z-index:2}.teaching-class-card:hover,.teaching-class-card:focus-within{border-color:#b7caff;box-shadow:0 9px 22px #3569e80a}textarea{font:inherit;color:var(--ink);border:1px solid #dde5f2;border-radius:10px;padding:10px 12px;resize:vertical;max-width:100%;background:white}textarea:focus{outline:2px solid #3569e828}
+
+/* Parent navigation sits beside the page title on every detail page. */
+.page-heading.has-back{justify-content:flex-start;gap:18px;align-items:center}
+.page-heading-copy{min-width:0;flex:1}
+.page-back{width:44px;height:44px;flex:0 0 44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #dfe7f5;border-radius:50%;background:#fff;color:#496488;box-shadow:0 3px 10px #203a6a05;transition:background .15s,border-color .15s,transform .15s}
+.page-back:hover{background:#edf3ff;border-color:#b7caff;color:#3569e8;transform:translateX(-2px)}
+.page-back:focus-visible{outline:3px solid #a8c1ff;outline-offset:3px}
+@media(max-width:760px){.page-heading.has-back{gap:12px;align-items:flex-start}.page-back{margin-top:22px;width:40px;height:40px;flex-basis:40px}.page-heading.has-back>.button{margin-left:auto}}
+
+.stat-value-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 14px}.stat-secondary{font-size:12px;line-height:1.6;font-weight:400;color:var(--muted)}
+
+/* Reserve scrollbar space so short and long views share the same content width. */
+html{scrollbar-gutter:stable;background:#f5f7fc}
+body[data-page="course-detail"] #main>.grid.four>.stat{min-height:170px}
+body[data-page="course-detail"] #main>.tabs{min-height:60px}
+body[data-page="course-detail"] #course-content{min-height:260px}
+@supports not (scrollbar-gutter:stable){html{overflow-y:scroll}}
+
+.timetable-card{border:1px solid var(--line);border-radius:20px;background:#fff;overflow:hidden;box-shadow:0 4px 16px #203a6a03}
+.timetable-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:26px 26px 20px}.timetable-toolbar h2{font-size:23px;margin:6px 0}.timetable-toolbar p{margin:0}.timetable-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.timetable-controls button{min-width:38px}.timetable-controls input{font:inherit;max-width:155px}
+.timetable-scroll{overflow:auto;padding:0 18px 18px}.timetable{width:100%;min-width:740px;table-layout:fixed;border-collapse:separate;border-spacing:7px 8px}.timetable th,.timetable td{border:0;padding:0;white-space:normal;vertical-align:top}.timetable thead th{height:60px;text-align:center;background:#f6f8fd;border-radius:10px;padding:8px 4px;color:#536887;font-weight:600}.timetable thead th small{display:block;font-size:11px;font-weight:400;color:#8a99b1;margin-top:2px}.timetable .time-heading{width:80px;vertical-align:middle}.timetable thead .is-today{background:#eaf0ff;color:#3569e8}.timetable thead .is-today small{color:#527edb}
+.timetable tbody td{height:168px;border-radius:12px;background:#fafbfe;padding:0}.timetable tbody tr:hover{background:none}.timetable .period-label{padding:24px 0 0;text-align:center;color:#72849f;font-weight:400}.period-label span{display:block;font-size:10px;margin-bottom:10px}.period-label strong{display:block;font-size:13px;font-weight:500}.period-label small{font-size:10px;color:#a9b4c6}.timetable .is-weekend{background:#f4f6f9;color:#a5afbe}.weekend-rest{display:block;text-align:center;padding-top:70px;font-size:12px}
+.timetable-lesson{display:flex;flex-direction:column;align-items:flex-start;text-align:left;justify-content:flex-start;width:100%;min-height:168px;height:100%;padding:16px 12px;border-radius:12px;border:1px solid transparent;color:#42638f;background:#eaf2ff;box-shadow:none;line-height:1.55;gap:8px;transition:filter .15s,transform .15s}.timetable-lesson:hover{filter:brightness(.97);transform:translateY(-1px)}.timetable-lesson strong{font-size:14px;line-height:1.5;overflow-wrap:anywhere}.timetable-lesson>span{font-size:11px}.timetable-lesson small{font-size:10px;opacity:.8}.timetable-lesson .lesson-repeat{margin-top:auto;font-size:9px;opacity:.65}.lesson-color-1{background:#e5f5ef;color:#327b65}.lesson-color-2{background:#f0ebfc;color:#7861aa}.lesson-color-3{background:#fff0e4;color:#a87344}.lesson-color-4{background:#e4f4f7;color:#377f8e}
+.timetable-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:16px 26px;border-top:1px solid var(--line);font-size:11px;color:#8a99b1}.lesson-details{display:grid;grid-template-columns:80px 1fr;gap:14px 10px;margin:24px 0}.lesson-details dt{color:var(--muted)}.lesson-details dd{margin:0}.timetable-card #schedule-empty:empty{display:none}
+@media(max-width:760px){.timetable-toolbar{align-items:flex-start;flex-direction:column;padding:20px 16px}.timetable-toolbar h2{font-size:20px}.timetable-scroll{padding:0 8px 12px}.timetable-footer{padding:14px 16px}.timetable-controls{width:100%}.timetable-controls input{margin-left:auto}}
+
+.attendance-publish{display:grid;grid-template-columns:minmax(140px,1fr) minmax(160px,1fr) 120px auto;gap:16px;align-items:end}.attendance-publish .field{margin-bottom:0}.attendance-card h2{margin:12px 0 6px}.attendance-count strong{font-size:32px;color:#3569e8}.attendance-count span{font-size:12px;color:var(--muted)}.attendance-code{display:flex;align-items:center;gap:24px;flex-wrap:wrap;background:#f0f5ff;border:1px solid #e1e9fc;padding:20px 24px;border-radius:14px;margin:16px 0 22px;color:#6c83ac}.attendance-code strong{font-size:40px;letter-spacing:12px;font-variant-numeric:tabular-nums;color:#3569e8}.attendance-code small{font-size:11px}.attendance-nav-badge{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;align-self:center;flex:0 0 20px;width:20px;height:20px;min-width:20px;border-radius:50%;background:#f16979;color:#fff;font-size:10px;line-height:1;padding:0;font-variant-numeric:tabular-nums}.attendance-notice{display:flex;align-items:center;justify-content:space-between;gap:20px;background:#edf3ff;border:1px solid #dbe6ff;border-radius:14px;padding:18px 24px;margin-top:24px;color:#3569e8}.attendance-notice small{display:block;color:#8192b1;margin-top:4px}.signin-input{width:100%;font-size:30px;letter-spacing:12px;text-align:center;font-variant-numeric:tabular-nums}.signin-error{color:#bd586e;font-size:12px;min-height:20px;margin-top:12px}
+@media(max-width:1000px){.attendance-publish{grid-template-columns:1fr 1fr}}@media(max-width:760px){.attendance-publish{grid-template-columns:1fr}.attendance-code{gap:12px}.attendance-notice{padding:16px}.attendance-count strong{font-size:26px}}
+
+#attendance-roster-dialog{padding:0}
+.attendance-roster-header{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 26px;background:#fff;border-bottom:1px solid var(--line)}
+.attendance-roster-header h2{margin:0}
+.roster-close{display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;padding:0;border:1px solid #e1e8f3;border-radius:50%;background:#f6f8fc;color:#6d7f9b;line-height:1}
+.roster-close:hover{background:#edf2fc;color:#3569e8;border-color:#b7caff}
+#attendance-roster{padding:8px 26px 24px}
+@media(max-width:760px){.attendance-roster-header{padding:16px 18px}#attendance-roster{padding:8px 18px 20px}}

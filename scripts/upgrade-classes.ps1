@@ -71,7 +71,7 @@ try {
         $backupPath = Join-Path $backupRoot ("before-classes-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.sql')
         [System.IO.File]::WriteAllText($backupPath, $dump, [System.Text.UTF8Encoding]::new($false))
     } finally { $process.Dispose() }
-    Invoke-ProjectSql ([System.IO.File]::ReadAllText((Join-Path $projectRoot 'sql/08_teaching_classes.sql'), [System.Text.Encoding]::UTF8)) | Out-Null
+    Invoke-ProjectSql ([System.IO.File]::ReadAllText((Join-Path $projectRoot 'sql/legacy/08_teaching_classes.sql'), [System.Text.Encoding]::UTF8)) | Out-Null
     Write-Host 'Teaching class migration completed. Restart this project after building the latest backend.'
     Write-Host "Backup: $backupPath"
 } finally { $databasePassword = $null }

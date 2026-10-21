@@ -23,3 +23,6 @@ __pycache__/
 *.pid
 .DS_Store
 Thumbs.db
+
+# Microsoft Office temporary lock files
+~$*

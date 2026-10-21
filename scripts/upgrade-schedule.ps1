@@ -21,7 +21,7 @@ try {
  [void]$process.Start()
  $output=$process.StandardOutput.ReadToEndAsync()
  $errors=$process.StandardError.ReadToEndAsync()
- $path=Join-Path (Split-Path $PSScriptRoot -Parent) 'sql/09_course_schedule.sql'
+ $path=Join-Path (Split-Path $PSScriptRoot -Parent) 'sql/legacy/09_course_schedule.sql'
  $process.StandardInput.Write([System.IO.File]::ReadAllText($path,[System.Text.Encoding]::UTF8))
  $process.StandardInput.Close()
  $process.WaitForExit()

@@ -1,7 +1,7 @@
 """Generate additive, repeatable example questions grouped by knowledge point.
 
 Existing questions and practice history are not overwritten. Execute the
-generated sql/04_expand_question_bank.sql after the original seed scripts.
+generated sql/legacy/04_expand_question_bank.sql after the original seed scripts.
 """
 from pathlib import Path
 
@@ -84,5 +84,5 @@ for knowledge,rows in groups.items():
   sql.append(f'INSERT INTO question_knowledge(question_id,knowledge_id) SELECT {qid},{knowledge} WHERE NOT EXISTS(SELECT 1 FROM question_knowledge WHERE question_id={qid} AND knowledge_id={knowledge});')
 sql.append('COMMIT;')
 root=Path(__file__).resolve().parents[1]
-(root/'sql'/'04_expand_question_bank.sql').write_text('\n'.join(sql)+'\n',encoding='utf-8')
+(root/'sql'/'legacy'/'04_expand_question_bank.sql').write_text('\n'.join(sql)+'\n',encoding='utf-8')
 print(f'Generated {qid-1000} additional questions across {len(groups)} knowledge points.')

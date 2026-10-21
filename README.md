@@ -142,11 +142,13 @@ python scripts/verify_schema.py
 
 ## 目录
 
+课程设计报告位于 `实验报告/课程设计报告.docx`，功能模块图和 E-R 图的 PNG 图片、可编辑 draw.io 文件位于 `实验报告/图表/`。任务书和报告样例位于 `docs/reference/课程设计资料/`。
+
 ```text
 backend/        Spring Boot 后端、MyBatis Mapper、单元测试
-frontend/       17 个页面、共享样式和 JavaScript 模块
+frontend/       21 个页面、共享样式和 JavaScript 模块
 deploy/         Nginx 配置模板
-sql/            基础表、题库、演示数据、07/08 迁移
+sql/            基础表、题库、演示数据、07 至 10 升级迁移
 scripts/        启动、停止、初始化、升级和验证脚本
 docs/design/    当前教师、选课与教学班设计
 docs/reference/ 原版业务设计参考，历史标识不代表当前实现

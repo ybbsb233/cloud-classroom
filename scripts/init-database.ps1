@@ -8,7 +8,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $mysql = (Get-Command $MySqlPath -ErrorAction Stop).Source
-$files = if ($WithHistory) { @('00_full_database.sql', '07_teachers_enrollment.sql', '08_teaching_classes.sql', '09_course_schedule.sql', '10_attendance.sql') } else { @('01_schema.sql', '02_demo_data.sql', '03_optional_password_change.sql', '04_expand_question_bank.sql', '06_chapter_bank.sql', '07_teachers_enrollment.sql', '08_teaching_classes.sql', '09_course_schedule.sql', '10_attendance.sql') }
+$files = @('init.sql')
+if ($WithHistory) { $files += 'demo_history.sql' }
 foreach ($file in $files) {
     if (-not (Test-Path -LiteralPath (Join-Path $projectRoot "sql/$file"))) { throw "Missing SQL file: $file" }
 }
@@ -54,7 +55,9 @@ try {
     }
     $counts = Invoke-ProjectSql 'SELECT COUNT(DISTINCT c.id), COUNT(DISTINCT ch.id), COUNT(DISTINCT q.id) FROM classroom_learning.course c JOIN classroom_learning.chapter ch ON ch.course_id=c.id AND ch.is_current=1 JOIN classroom_learning.question q ON q.chapter_id=ch.id;'
     if ($counts -ne "5`t25`t500") { throw "Unexpected course/chapter/question counts: $counts" }
-    Write-Host 'Database initialized: classroom_learning; 5 courses, 25 current chapters, 500 current questions.'
+    $tableCount = Invoke-ProjectSql "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='classroom_learning' AND table_type='BASE TABLE';"
+    if ($tableCount -ne '14') { throw "Unexpected table count: $tableCount" }
+    Write-Host 'Database initialized: classroom_learning; 14 tables, 5 courses, 25 current chapters, 500 current questions.'
     if ($WithHistory) { Write-Host 'Original demonstration accounts and learning history were imported into the independent database.' }
     Write-Host 'Next: run scripts/start-site.ps1 to start the backend and Nginx.'
 } catch {

@@ -69,5 +69,5 @@ for cid, (name, chapters, questions) in enumerate(courses, 1):
         if n==0: sql.append(f'INSERT INTO question_knowledge VALUES({qid},{extra});')
 sql.append('COMMIT;')
 root=Path(__file__).resolve().parents[1]
-(root/'sql'/'02_demo_data.sql').write_text('\n'.join(sql)+'\n',encoding='utf-8')
+(root/'sql'/'legacy'/'02_demo_data.sql').write_text('\n'.join(sql)+'\n',encoding='utf-8')
 print(f'Generated {len(courses)} courses and {qid} questions.')

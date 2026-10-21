@@ -3,11 +3,16 @@ import os
 import subprocess
 
 def sql(text):
-    return subprocess.run(['mysql','--user='+os.environ.get('DB_USERNAME','root'),'--default-character-set=utf8mb4','-N','classroom_learning'],input=text.encode('utf-8'),stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    return subprocess.run([os.environ.get('MYSQL_PATH','mysql'),
+                           '--host='+os.environ.get('DB_HOST','127.0.0.1'),
+                           '--port='+os.environ.get('DB_PORT','3306'),
+                           '--user='+os.environ.get('DB_USERNAME','root'),
+                           '--default-character-set=utf8mb4','-N','classroom_learning'],
+                          input=text.encode('utf-8'),stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
 checks=0
 for statement,expected in [
-    ('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE();','11'),
+    ('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE();','14'),
     ('SELECT COUNT(*) FROM question q JOIN chapter ch ON ch.id=q.chapter_id WHERE ch.is_current=1;','500'),
     ('SELECT COUNT(*) FROM question q WHERE NOT EXISTS(SELECT 1 FROM question_knowledge k WHERE k.question_id=q.id);','0'),
     ('SELECT COUNT(*) FROM question_knowledge qk JOIN question q ON q.id=qk.question_id JOIN knowledge_point k ON k.id=qk.knowledge_id WHERE q.chapter_id<>k.chapter_id;','0'),

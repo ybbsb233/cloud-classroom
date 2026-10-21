@@ -56,7 +56,11 @@ mvn -B -f backend/pom.xml package
 .\scripts\init-database.ps1
 ```
 
-两种方式二选一。脚本自动串联教师/选课迁移 07 和教学班迁移 08；`00_full_database.sql` 是升级前的演示数据基线，不能单独作为当前版本的完整初始化。它包含 DROP TABLE，不要向正在使用的数据库直接重复导入。
+两种方式二选一。两者均执行 `sql/init.sql`，直接创建当前完整的 14 张表，并导入两名教师、课程、题库、默认教学班和周课表，不再串联旧升级脚本。`-WithHistory` 额外执行纯数据脚本 `sql/demo_history.sql`，导入演示学生、选课、班级成员和练习历史。
+
+也可以在 MySQL 命令行直接执行 `SOURCE /项目绝对路径/sql/init.sql;`；需要演示历史时再执行 `SOURCE /项目绝对路径/sql/demo_history.sql;`。`init.sql` 仅用于新库：数据库已存在时立即报错，不含 `DROP`、`ALTER` 或关闭外键检查的语句。请勿对现有数据库重复初始化。
+
+旧版 00 至 10 SQL 已归档到 `sql/legacy/`，仅供追溯和旧库升级；不要按文件编号将历史脚本与 `init.sql` 混合执行。
 
 如 mysql 未加入 PATH，可指定 `-MySqlPath 'D:\mysql\bin\mysql.exe'`，并用 `-DbHost`、`-DbPort`、`-DbUser` 调整连接参数。
 
@@ -89,7 +93,7 @@ mvn -B -f backend/pom.xml package
 .\scripts\upgrade-schedule.ps1
 ```
 
-新环境初始化脚本已包含 `09_course_schedule.sql`。数据库唯一约束禁止全局时段重叠，CHECK 约束禁止周末排课。
+新环境的 `sql/init.sql` 已包含课表结构和默认排课。数据库唯一约束禁止全局时段重叠，CHECK 约束禁止周末排课。
 
 ### 课程签到
 
@@ -97,7 +101,7 @@ mvn -B -f backend/pom.xml package
 
 发布时保存已选课且启用的学生名单；后加入课程的学生不追加入已发布签到。学生退课后不再看到或提交该课程签到。每人每次只记录一次签到时间，截止或教师提前结束后无法继续签到。教师可查看应签/已签人数、学生名单及时间。
 
-已有环境执行 `.\scripts\upgrade-attendance.ps1`；新环境初始化已包含 `10_attendance.sql`。`python scripts/verify_attendance.py` 验证普通/口令签到、重复提交、到期、结束、名单与权限，并恢复测试学生选课与班级；设置 `MYSQL_PWD` 时会清理本次自动验证产生的签到，否则保留为已结束记录。
+已有环境执行 `.\scripts\upgrade-attendance.ps1`；新环境的 `sql/init.sql` 已包含签到表。`python scripts/verify_attendance.py` 验证普通/口令签到、重复提交、到期、结束、名单与权限，并恢复测试学生选课与班级；设置 `MYSQL_PWD` 时会清理本次自动验证产生的签到，否则保留为已结束记录。
 
 ### 演示账号
 
@@ -118,7 +122,7 @@ mvn -B -f backend/pom.xml package
 .\scripts\upgrade-classes.ps1
 ```
 
-升级脚本先备份，并在已升级时跳过，不重新选课或覆盖班级名单。07、08 SQL 是一次性迁移，不应直接重复执行。
+教师和教学班升级脚本先备份，并在已升级时跳过，不重新选课或覆盖班级名单。它们读取 `sql/legacy/` 中的 07、08 一次性迁移文件；新安装无需运行任何升级脚本。课表与签到升级入口保留给尚未增加相应表的旧库。
 
 ## 验证
 
@@ -129,6 +133,7 @@ python scripts/verify_schedule.py
 python scripts/verify_migration.py
 python scripts/verify_enrollment.py
 python scripts/verify_classes.py
+python scripts/verify_init.py
 # 通过 MYSQL_PWD 环境变量提供数据库密码后运行
 python scripts/verify_schema.py
 ```
@@ -137,6 +142,7 @@ python scripts/verify_schema.py
 - `verify_enrollment.py`：临时调整 20240020 的选课，结束后恢复课程与班级关系；教师密码通过 TEST_TEACHER_PASSWORD 指定。
 - `verify_classes.py`：临时移动 20240020 并创建测试班，结束后恢复原班名单，测试班解散归档。上述两项用于演示环境，并要求该学生最初已加入五门课及默认教学班。
 - HTTP 脚本默认网站端口为 18091，可通过 TEST_BASE_URL 或 TEST_WEB_URL 覆盖。
+- `verify_init.py`：连接 MySQL 后在随机命名的临时测试库中检查统一初始化、可选历史、重复导入保护及关键约束，结束后删除本次测试库；不修改 `classroom_learning`。数据库脚本通过 `MYSQL_PWD` 认证，可用 `DB_HOST`、`DB_PORT`、`DB_USERNAME` 和 `MYSQL_PATH` 指定连接。
 
 验证覆盖评分规则、真实数据库完整性、资源与模块依赖、权限隔离、选退课、分班、批量操作回滚等。详细结果及浏览器验证范围见 docs/verification 和设计文档。
 
@@ -148,7 +154,8 @@ python scripts/verify_schema.py
 backend/        Spring Boot 后端、MyBatis Mapper、单元测试
 frontend/       21 个页面、共享样式和 JavaScript 模块
 deploy/         Nginx 配置模板
-sql/            基础表、题库、演示数据、07 至 10 升级迁移
+sql/            init.sql 当前统一建表与基础数据、demo_history.sql 可选历史
+sql/legacy/     旧版 SQL 与一次性升级脚本，不参与新库初始化
 scripts/        启动、停止、初始化、升级和验证脚本
 docs/design/    当前教师、选课与教学班设计
 docs/reference/ 原版业务设计参考，历史标识不代表当前实现

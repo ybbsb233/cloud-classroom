@@ -366,7 +366,7 @@ if __name__=='__main__':
         sql.append('INSERT INTO question(id,chapter_id,question_type,stem,option_a,option_b,option_c,option_d,correct_answer,explanation) SELECT '+','.join(values)+f" WHERE NOT EXISTS(SELECT 1 FROM question WHERE id={q['id']});")
         sql.append(f"INSERT INTO question_knowledge SELECT {q['id']},{q['knowledgeId']} WHERE NOT EXISTS(SELECT 1 FROM question_knowledge WHERE question_id={q['id']} AND knowledge_id={q['knowledgeId']});")
     sql.append('COMMIT;')
-    (root/'sql'/'06_chapter_bank.sql').write_text('\n'.join(sql)+'\n',encoding='utf-8')
+    (root/'sql'/'legacy'/'06_chapter_bank.sql').write_text('\n'.join(sql)+'\n',encoding='utf-8')
     outline=['# 固定章节练习题库','', '当前题库共 5 门课、25 章、50 个知识点、500 道题。每章固定 20 题，每个知识点 10 题。','']
     for course,chapters_data in bank:
         outline+=['## '+course,'']

@@ -1,13 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.learning.mapper.AttendanceMapper">
- <insert id="create" useGeneratedKeys="true" keyProperty="id">INSERT INTO attendance_session(course_id,teacher_id,title,mode,passcode,expires_at) VALUES(#{courseId},#{teacherId},#{title},#{mode},#{passcode},#{expiresAt})</insert>
- <insert id="recipients">INSERT INTO attendance_recipient(session_id,student_id) SELECT #{sessionId},e.student_id FROM course_enrollment e JOIN app_user u ON u.id=e.student_id WHERE e.course_id=#{courseId} AND u.enabled=1</insert>
- <select id="lock" resultType="map">SELECT id,course_id courseId,teacher_id teacherId,mode,passcode,(closed_at IS NULL AND expires_at>NOW(3)) active FROM attendance_session WHERE id=#{id} FOR UPDATE</select>
- <select id="teacherList" resultType="map">SELECT CAST(s.id AS CHAR) id,s.title,s.mode,s.passcode,s.created_at createdAt,s.expires_at expiresAt,(s.closed_at IS NULL AND s.expires_at>NOW(3)) active,COUNT(r.student_id) expectedCount,COUNT(r.signed_at) signedCount FROM attendance_session s LEFT JOIN attendance_recipient r ON r.session_id=s.id WHERE s.course_id=#{courseId} GROUP BY s.id ORDER BY s.id DESC LIMIT 100</select>
- <select id="studentList" resultType="map">SELECT CAST(s.id AS CHAR) id,CAST(c.id AS CHAR) courseId,c.name courseName,s.title,s.mode,s.created_at createdAt,s.expires_at expiresAt,(s.closed_at IS NULL AND s.expires_at>NOW(3)) active,r.signed_at signedAt FROM attendance_session s JOIN attendance_recipient r ON r.session_id=s.id AND r.student_id=#{studentId} JOIN course c ON c.id=s.course_id WHERE 1=1 <include refid="cn.edu.learning.mapper.EnrollmentMapper.visible"><property name="courseColumn" value="c.id"/></include> ORDER BY (s.closed_at IS NULL AND s.expires_at>NOW(3) AND r.signed_at IS NULL) DESC,s.id DESC LIMIT 100</select>
- <select id="roster" resultType="map">SELECT CAST(u.id AS CHAR) id,u.username,u.real_name realName,r.signed_at signedAt FROM attendance_recipient r JOIN app_user u ON u.id=r.student_id WHERE r.session_id=#{id} ORDER BY u.username</select>
- <select id="recipient" resultType="int">SELECT COUNT(*) FROM attendance_recipient WHERE session_id=#{id} AND student_id=#{studentId}</select>
- <update id="sign">UPDATE attendance_recipient SET signed_at=COALESCE(signed_at,NOW(3)) WHERE session_id=#{id} AND student_id=#{studentId}</update>
- <update id="close">UPDATE attendance_session SET closed_at=COALESCE(closed_at,NOW(3)) WHERE id=#{id}</update>
+    <insert id="create" useGeneratedKeys="true" keyProperty="id">INSERT INTO
+        attendance_session(course_id,teacher_id,title,mode,passcode,expires_at)
+        VALUES(#{courseId},#{teacherId},#{title},#{mode},#{passcode},#{expiresAt})
+    </insert>
+    <insert id="recipients">INSERT INTO attendance_recipient(session_id,student_id) SELECT #{sessionId},e.student_id
+        FROM course_enrollment e JOIN app_user u ON u.id=e.student_id WHERE e.course_id=#{courseId} AND u.enabled=1
+    </insert>
+    <select id="lock" resultType="map">SELECT id,course_id courseId,teacher_id teacherId,mode,passcode,(closed_at IS
+        NULL AND expires_at>NOW(3)) active FROM attendance_session WHERE id=#{id} FOR UPDATE
+    </select>
+    <select id="teacherList" resultType="map">SELECT CAST(s.id AS CHAR) id,s.title,s.mode,s.passcode,s.created_at
+        createdAt,s.expires_at expiresAt,(s.closed_at IS NULL AND s.expires_at>NOW(3)) active,COUNT(r.student_id)
+        expectedCount,COUNT(r.signed_at) signedCount FROM attendance_session s LEFT JOIN attendance_recipient r ON
+        r.session_id=s.id WHERE s.course_id=#{courseId} GROUP BY s.id ORDER BY s.id DESC LIMIT 100
+    </select>
+    <select id="studentList" resultType="map">SELECT CAST(s.id AS CHAR) id,CAST(c.id AS CHAR) courseId,c.name
+        courseName,s.title,s.mode,s.created_at createdAt,s.expires_at expiresAt,(s.closed_at IS NULL AND
+        s.expires_at>NOW(3)) active,r.signed_at signedAt FROM attendance_session s JOIN attendance_recipient r ON
+        r.session_id=s.id AND r.student_id=#{studentId} JOIN course c ON c.id=s.course_id WHERE 1=1
+        <include refid="cn.edu.learning.mapper.EnrollmentMapper.visible">
+            <property name="courseColumn" value="c.id"/>
+        </include>
+        ORDER BY (s.closed_at IS NULL AND s.expires_at>NOW(3) AND r.signed_at IS NULL) DESC,s.id DESC LIMIT 100
+    </select>
+    <select id="roster" resultType="map">SELECT CAST(u.id AS CHAR) id,u.username,u.real_name realName,r.signed_at
+        signedAt FROM attendance_recipient r JOIN app_user u ON u.id=r.student_id WHERE r.session_id=#{id} ORDER BY
+        u.username
+    </select>
+    <select id="recipient" resultType="int">SELECT COUNT(*) FROM attendance_recipient WHERE session_id=#{id} AND
+        student_id=#{studentId}
+    </select>
+    <update id="sign">UPDATE attendance_recipient SET signed_at=COALESCE(signed_at,NOW(3)) WHERE session_id=#{id} AND
+        student_id=#{studentId}
+    </update>
+    <update id="close">UPDATE attendance_session SET closed_at=COALESCE(closed_at,NOW(3)) WHERE id=#{id}</update>
 </mapper>

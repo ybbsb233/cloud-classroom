@@ -1,32 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.learning.mapper.EnrollmentMapper">
-  <!-- courseColumn is a constant alias provided by source-code includes, never request input. -->
-  <sql id="visible">
-    <bind name="scopeUserId" value="@cn.edu.learning.utils.CourseScope@userId()"/>
-    AND EXISTS (SELECT 1 FROM course scope_course WHERE scope_course.id=${courseColumn}
-    <choose>
-      <when test='@cn.edu.learning.utils.CourseScope@role() == "TEACHER"'>
-        AND scope_course.teacher_id=#{scopeUserId}
-      </when>
-      <when test='@cn.edu.learning.utils.CourseScope@role() == "STUDENT"'>
-        AND scope_course.is_open=1 AND EXISTS (SELECT 1 FROM course_enrollment scope_enrollment WHERE scope_enrollment.course_id=scope_course.id AND scope_enrollment.student_id=#{scopeUserId})
-      </when>
-      <otherwise>AND 1=0</otherwise>
-    </choose>)
-  </sql>
-  <select id="catalog" resultType="map">
-    SELECT CAST(c.id AS CHAR) id,c.name,c.description,u.real_name teacherName,
-    EXISTS(SELECT 1 FROM course_enrollment e WHERE e.course_id=c.id AND e.student_id=#{studentId}) enrolled,
-    (SELECT COUNT(*) FROM course_enrollment e WHERE e.course_id=c.id) studentCount,
-    (SELECT COUNT(*) FROM question q JOIN chapter ch ON ch.id=q.chapter_id WHERE ch.course_id=c.id AND ch.is_current=1) questionCount
-    FROM course c JOIN app_user u ON u.id=c.teacher_id WHERE c.is_open=1 AND u.enabled=1
-    <if test="keyword != null and keyword != ''">AND (LOCATE(#{keyword},c.name)>0 OR LOCATE(#{keyword},COALESCE(c.description,''))>0 OR LOCATE(#{keyword},u.real_name)>0)</if>
-    ORDER BY c.sort_order,c.id
-  </select>
-  <select id="lockCourse" resultType="map">SELECT id,teacher_id teacherId,is_open isOpen FROM course WHERE id=#{id} FOR UPDATE</select>
-  <select id="enrolled" resultType="long">SELECT student_id FROM course_enrollment WHERE student_id=#{studentId} AND course_id=#{courseId} FOR UPDATE</select>
-  <insert id="join">INSERT INTO course_enrollment(student_id,course_id) VALUES(#{studentId},#{courseId}) ON DUPLICATE KEY UPDATE student_id=VALUES(student_id)</insert>
-  <delete id="leave">DELETE FROM course_enrollment WHERE student_id=#{studentId} AND course_id=#{courseId}</delete>
-  <select id="courseStudents" resultType="long">SELECT COUNT(*) FROM course_enrollment WHERE course_id=#{courseId}</select>
+    <!-- courseColumn is a constant alias provided by source-code includes, never request input. -->
+    <sql id="visible">
+        <bind name="scopeUserId" value="@cn.edu.learning.utils.CourseScope@userId()"/>
+        AND EXISTS (SELECT 1 FROM course scope_course WHERE scope_course.id=${courseColumn}
+        <choose>
+            <when test='@cn.edu.learning.utils.CourseScope@role() == "TEACHER"'>
+                AND scope_course.teacher_id=#{scopeUserId}
+            </when>
+            <when test='@cn.edu.learning.utils.CourseScope@role() == "STUDENT"'>
+                AND scope_course.is_open=1 AND EXISTS (SELECT 1 FROM course_enrollment scope_enrollment WHERE
+                scope_enrollment.course_id=scope_course.id AND scope_enrollment.student_id=#{scopeUserId})
+            </when>
+            <otherwise>AND 1=0</otherwise>
+        </choose>
+        )
+    </sql>
+    <select id="catalog" resultType="map">
+        SELECT CAST(c.id AS CHAR) id,c.name,c.description,u.real_name teacherName,
+        EXISTS(SELECT 1 FROM course_enrollment e WHERE e.course_id=c.id AND e.student_id=#{studentId}) enrolled,
+        (SELECT COUNT(*) FROM course_enrollment e WHERE e.course_id=c.id) studentCount,
+        (SELECT COUNT(*) FROM question q JOIN chapter ch ON ch.id=q.chapter_id WHERE ch.course_id=c.id AND
+        ch.is_current=1) questionCount
+        FROM course c JOIN app_user u ON u.id=c.teacher_id WHERE c.is_open=1 AND u.enabled=1
+        <if test="keyword != null and keyword != ''">AND (LOCATE(#{keyword},c.name)>0 OR
+            LOCATE(#{keyword},COALESCE(c.description,''))>0 OR LOCATE(#{keyword},u.real_name)>0)
+        </if>
+        ORDER BY c.sort_order,c.id
+    </select>
+    <select id="lockCourse" resultType="map">SELECT id,teacher_id teacherId,is_open isOpen FROM course WHERE id=#{id}
+        FOR UPDATE
+    </select>
+    <select id="enrolled" resultType="long">SELECT student_id FROM course_enrollment WHERE student_id=#{studentId} AND
+        course_id=#{courseId} FOR UPDATE
+    </select>
+    <insert id="join">INSERT INTO course_enrollment(student_id,course_id) VALUES(#{studentId},#{courseId}) ON DUPLICATE
+        KEY UPDATE student_id=VALUES(student_id)
+    </insert>
+    <delete id="leave">DELETE FROM course_enrollment WHERE student_id=#{studentId} AND course_id=#{courseId}</delete>
+    <select id="courseStudents" resultType="long">SELECT COUNT(*) FROM course_enrollment WHERE course_id=#{courseId}
+    </select>
 </mapper>
